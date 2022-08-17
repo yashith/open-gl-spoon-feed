@@ -7,14 +7,23 @@
 #include <string>
 #include <sstream>
 
+#define ASSERT(x) if(!(x)) __debugbreak();
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x,__FILE__,__LINE__))
 
 static void GLClearError() {
     while (glGetError() != GL_NO_ERROR);
 }
-static void GLCheckError() {
+static bool GLLogCall(std::string function, std::string file,int line) {
     while (GLenum error = glGetError()) {
-        std::cout << error << std::endl;
+        std::cout << error 
+            << function <<
+             file <<
+            line<< std::endl;
+        return false;
     }
+    return true;
 }
 struct ShaderProgramSource
 {
@@ -144,10 +153,10 @@ int main(void)
     unsigned int shader = createShader(shaderSource.Vertex,shaderSource.Fragment);
     glUseProgram(shader);
 
-   // int location = glGetUniformLocation(shader,"u_Color");
-   // glUniform4f(location,0.8f,0.3f,0.8f,1.0f);
-   // float r = 0.0f;
-   // float increment = 0.5f;
+   int location = glGetUniformLocation(shader,"u_Color");
+   glUniform4f(location,0.8f,0.3f,0.8f,1.0f);
+   float r = 0.0f;
+   float increment = 0.5f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -158,18 +167,17 @@ int main(void)
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         GLClearError();
 
-     //   if (r > 1.0f) {
-     //       increment = -0.05f;
-     //   }
-     //   else if (r < 1.0f) {
-     //       increment = 0.05f;
-     //   }
-     //   r += increment;
-     //
-     //   glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
+        if (r > 1.0f) {
+            increment = -0.05f;
+        }
+        else if (r < 1.0f) {
+            increment = 0.05f;
+        }
+        r += increment;
+     
+        glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        GLCheckError();
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
