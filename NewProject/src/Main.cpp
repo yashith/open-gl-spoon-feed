@@ -127,6 +127,10 @@ int main(void)
     }
     std::cout << glGetString(GL_VERSION) << std::endl;
 
+    unsigned int vao;
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+
     unsigned int buffer;
     GLCall(glGenBuffers(1, &buffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
@@ -150,7 +154,7 @@ int main(void)
    GLCall(glUseProgram(0));
    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0));
-
+   GLCall(glBindVertexArray(0));
    float r = 0.0f;
    float increment = 0.5f;
 
@@ -164,9 +168,10 @@ int main(void)
         GLCall(glUseProgram(shader));
         glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
 
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-        GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,sizeof(float)*2,0));
+        //GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+        GLCall(glBindVertexArray(vao));
+        //GLCall(glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,sizeof(float)*2,0));
+        //GLCall(glEnableVertexAttribArray(0));
 
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
 
