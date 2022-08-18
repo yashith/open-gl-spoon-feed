@@ -94,15 +94,6 @@ int main(void)
 {
     GLFWwindow* window;
 
-    /*float positions[] = {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-
-         0.5f, 0.5f,
-         -0.5f, 0.5f,
-         -0.5f, -0.5f,
-    };*/
     float positions[] = {
         -0.5f, -0.5f,
          0.5f, -0.5f,
@@ -137,16 +128,16 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6 *2 * sizeof(float),positions,GL_STATIC_DRAW);
+    GLCall(glGenBuffers(1, &buffer));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 *2 * sizeof(float),positions,GL_STATIC_DRAW));
     
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 
     unsigned int ibo;
     glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 *  sizeof(unsigned int), &indecies[0], GL_STATIC_DRAW);
 
     ShaderProgramSource shaderSource = GetShaderStrings("src/Source.shader");
@@ -155,6 +146,11 @@ int main(void)
 
    int location = glGetUniformLocation(shader,"u_Color");
    glUniform4f(location,0.8f,0.3f,0.8f,1.0f);
+
+   GLCall(glUseProgram(0));
+   GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0));
+
    float r = 0.0f;
    float increment = 0.5f;
 
@@ -165,18 +161,24 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-        GLClearError();
+        GLCall(glUseProgram(shader));
+        glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
+
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,sizeof(float)*2,0));
+
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+
 
         if (r > 1.0f) {
             increment = -0.05f;
         }
-        else if (r < 1.0f) {
+        else if (r < 0.0f) {
             increment = 0.05f;
         }
         r += increment;
      
-        glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
-
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
