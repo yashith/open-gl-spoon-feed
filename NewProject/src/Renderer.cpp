@@ -1,5 +1,8 @@
 #include "Renderer.h"
 #include<iostream>
+#include "Shader.h"
+#include "VertexArray.h"
+#include "IndexBuffer.h"
 
 void GLClearError()
 {
@@ -16,3 +19,10 @@ bool GLLogCall(std::string function, std::string file, int line)
     }
     return true;
 }
+
+void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const{
+    shader.Bind();
+    va.Bind();
+    ib.Bind();
+    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+    }
